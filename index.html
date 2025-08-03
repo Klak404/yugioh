@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Yu-Gi-Oh! LP Counter</title>
-  <style>
+<style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -179,8 +179,12 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="duelist">
+  <header>
+    <h1 style="display: none;">Yu-Gi-Oh! LP Counter</h1> <!-- Κρυφός τίτλος για screen readers -->
+  </header>
+
+  <main class="container">
+    <article class="duelist">
       <h2>Duelist 1</h2>
       <div class="lp" id="lp1">8000</div>
       <div class="controls">
@@ -189,30 +193,32 @@
         <button onclick="changeLP(1, false)">−</button>
         <button onclick="resetLP(1)">Reset</button>
       </div>
-    </div>
-    <div class="duelist">
+    </article>
+
+    <article class="duelist">
       <h2>Duelist 2</h2>
       <div class="lp" id="lp2">8000</div>
       <div class="controls">
-        <input id="amount2" type="number" value="100" size="4"/>
+        <input id="amount2" type="number" value="100" />
         <button onclick="changeLP(2, true)">+</button>
         <button onclick="changeLP(2, false)">−</button>
         <button onclick="resetLP(2)">Reset</button>
       </div>
-    </div>
-  </div>
+    </article>
+  </main>
 
-  <div class="center-panel">
+  <section class="center-panel">
     <div class="timer-display" id="timer">00:00</div>
     <div class="actions">
       <button onclick="startTimer()">Start</button>
       <button onclick="pauseTimer()">Pause</button>
       <button onclick="resetTimer()">Reset</button>
     </div>
-  </div>
+  </section>
 
-  <div class="tools-panel" id="toolsPanel">
+  <section class="tools-panel" id="toolsPanel">
     <div class="counter-group">
+      <!-- Counters -->
       <div class="counter">
         <button onclick="updateCounter(0, -1)">−</button>
         <div id="counter0">0</div>
@@ -239,21 +245,20 @@
       <button onclick="flipCoin()">🪙 Flip Coin</button>
       <div id="rollResult">Ready</div>
     </div>
-  </div>
+  </section>
 
-  <div class="bottom-icons">
+  <footer class="bottom-icons">
     <div class="icon" onclick="toggleTools()">
-      <img src="https://img.icons8.com/ios-filled/50/00eaff/dice.png"/>
+      <img src="https://img.icons8.com/ios-filled/50/00eaff/dice.png" alt="Open tools"/>
       <span>Tools</span>
     </div>
     <div class="icon" onclick="hideTools()">
-      <img src="https://img.icons8.com/ios-filled/50/00eaff/delete-sign.png"/>
+      <img src="https://img.icons8.com/ios-filled/50/00eaff/delete-sign.png" alt="Hide tools"/>
       <span>Hide</span>
     </div>
-  </div>
+  </footer>
 
   <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
-
   <script>
     let lp1 = 8000;
     let lp2 = 8000;
