@@ -176,6 +176,35 @@
       font-size: 24px;
       margin-top: 10px;
     }
+
+      .log {
+    margin-top: 15px;
+    text-align: left;
+    font-size: 14px;
+    max-height: 120px;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .log-entry {
+    margin-bottom: 5px;
+  }
+
+  .duelist button {
+  margin-top: 10px;
+  background: #00eaff;
+  color: #001d3d;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.duelist button:hover {
+  background-color: #00b8d4;
+}
+
   </style>
 </head>
 <body>
@@ -185,26 +214,30 @@
 
   <main class="container">
     <article class="duelist">
-      <h2>Duelist 1</h2>
-      <div class="lp" id="lp1">8000</div>
-      <div class="controls">
-        <input id="amount1" type="number" value="100" />
-        <button onclick="changeLP(1, true)">+</button>
-        <button onclick="changeLP(1, false)">−</button>
-        <button onclick="resetLP(1)">Reset</button>
-      </div>
-    </article>
+  <h2>Duelist 1</h2>
+  <div class="lp" id="lp1">8000</div>
+  <div class="controls">
+    <input id="amount1" type="number" value="100" />
+    <button onclick="changeLP(1, true)">+</button>
+    <button onclick="changeLP(1, false)">−</button>
+    <!--<button onclick="resetLP(1)">Reset</button>-->
+  </div>
+  <button onclick="toggleLog(1)">Hide Log</button>
+  <div class="log" id="log1" style="display: none;"></div> <!-- ✅ Προστέθηκε -->
+</article>
 
-    <article class="duelist">
-      <h2>Duelist 2</h2>
-      <div class="lp" id="lp2">8000</div>
-      <div class="controls">
-        <input id="amount2" type="number" value="100" />
-        <button onclick="changeLP(2, true)">+</button>
-        <button onclick="changeLP(2, false)">−</button>
-        <button onclick="resetLP(2)">Reset</button>
-      </div>
-    </article>
+<article class="duelist">
+  <h2>Duelist 2</h2>
+  <div class="lp" id="lp2">8000</div>
+  <div class="controls">
+    <input id="amount2" type="number" value="100" />
+    <button onclick="changeLP(2, true)">+</button>
+    <button onclick="changeLP(2, false)">−</button>
+    <!--<button onclick="resetLP(2)">Reset</button>-->
+  </div>
+  <button onclick="toggleLog(2)">Hide Log</button>
+  <div class="log" id="log2" style="display: none;"></div> <!-- ✅ Προστέθηκε -->
+</article>
   </main>
 
   <section class="center-panel">
@@ -247,18 +280,18 @@
     </div>
   </section>
 
-  <footer class="bottom-icons">
+<footer class="bottom-icons">
     <div class="icon" onclick="toggleTools()">
       <img src="https://img.icons8.com/ios-filled/50/00eaff/dice.png" alt="Open tools"/>
       <span>Tools</span>
     </div>
-    <div class="icon" onclick="hideTools()">
-      <img src="https://img.icons8.com/ios-filled/50/00eaff/delete-sign.png" alt="Hide tools"/>
-      <span>Hide</span>
+    <div class="icon" onclick="confirmResetAll()">
+      <img src="https://img.icons8.com/ios-filled/50/00eaff/delete-sign.png" alt="Reset All"/>
+      <span>Reset Όλων</span>
     </div>
-  </footer>
+</footer>
 
-  <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+  <!--<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>-->
   <script>
     let lp1 = 8000;
     let lp2 = 8000;
@@ -403,7 +436,122 @@
       updateTimerDisplay();
     }
 
-    window.onload = loadState;
+
+
+function changeLP(player, isAdd) {
+    const input = document.getElementById(`amount${player}`);
+    const value = parseInt(input.value) || 0;
+    const change = isAdd ? value : -value;
+
+    let oldLP = player === 1 ? lp1 : lp2;
+
+    if (player === 1) {
+      lp1 = Math.max(0, lp1 + change);
+      document.getElementById("lp1").textContent = lp1;
+      updateLPColor("lp1", lp1);
+      animateLP("lp1");
+    } else {
+      lp2 = Math.max(0, lp2 + change);
+      document.getElementById("lp2").textContent = lp2;
+      updateLPColor("lp2", lp2);
+      animateLP("lp2");
+    }
+
+    const logValue = isAdd ? `+${value}` : `−${value}`;
+    addLogEntry(player, logValue); // ✅ Καταγραφή αλλαγής
+
+    playSound();
+    saveState();
+  }
+
+  // Συνάρτηση καταγραφή LP log
+  function addLogEntry(player, changeText) {
+    const log = document.getElementById(`log${player}`);
+    const time = new Date().toLocaleTimeString();
+    const entry = document.createElement("div");
+    entry.className = "log-entry";
+    entry.textContent = `[${time}] LP ${changeText}`;
+    log.prepend(entry);
+  }
+
+  function resetLP(player) {
+    if (player === 1) {
+      lp1 = 8000;
+      document.getElementById("lp1").textContent = lp1;
+      updateLPColor("lp1", lp1);
+      animateLP("lp1");
+    } else {
+      lp2 = 8000;
+      document.getElementById("lp2").textContent = lp2;
+      updateLPColor("lp2", lp2);
+      animateLP("lp2");
+    }
+    playSound();
+    saveState();
+  }
+
+  function loadState() {
+    const state = JSON.parse(localStorage.getItem("ygolpState"));
+    if (!state) return;
+    lp1 = state.lp1 ?? 8000;
+    lp2 = state.lp2 ?? 8000;
+    seconds = state.seconds ?? 0;
+    for (let i = 0; i < counters.length; i++) {
+      counters[i] = state.counters?.[i] ?? 0;
+      document.getElementById(`counter${i}`).textContent = counters[i];
+    }
+    document.getElementById("lp1").textContent = lp1;
+    document.getElementById("lp2").textContent = lp2;
+    updateLPColor("lp1", lp1);
+    updateLPColor("lp2", lp2);
+    updateTimerDisplay();
+  }
+
+  function toggleLog(player) {
+  const log = document.getElementById(`log${player}`);
+  const button = log.previousElementSibling; // το κουμπί βρίσκεται ακριβώς πριν
+  if (log.style.display === "none") {
+    log.style.display = "block";
+    button.textContent = "Hide Log";
+  } else {
+    log.style.display = "none";
+    button.textContent = "Show Log";
+  }
+}
+
+function resetAll() {
+  lp1 = 8000;
+  lp2 = 8000;
+  document.getElementById("lp1").textContent = lp1;
+  document.getElementById("lp2").textContent = lp2;
+  updateLPColor("lp1", lp1);
+  updateLPColor("lp2", lp2);
+  animateLP("lp1");
+  animateLP("lp2");
+
+  resetTimer();
+
+  // Reset all counters
+  for (let i = 0; i < counters.length; i++) {
+    counters[i] = 0;
+    document.getElementById(`counter${i}`).textContent = counters[i];
+  }
+
+  // Clear the logs for both players
+  document.getElementById("log1").innerHTML = "";
+  document.getElementById("log2").innerHTML = "";
+
+  // Save the new state
+  saveState();
+}
+
+function confirmResetAll() {
+  if (window.confirm("Είστε σίγουροι ότι θέλετε να κάνετε reset όλων των μετρητών; Η ενέργεια αυτή δεν αναιρείται.")) {
+    resetAll();
+  }
+}
+
+  window.onload = loadState;
   </script>
 </body>
 </html>
